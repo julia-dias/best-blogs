@@ -1,0 +1,23 @@
+# This file must be run with environment file test-env
+# e.g.
+# $ docker compose up -d --build
+# $ docker compose down
+services:
+  bestblogs-api:
+    image: bestblogs-api:latest
+    container_name: bestblogs-webapi
+    build:
+      context: .
+      dockerfile: Api/Dockerfile
+      args:
+        BUILD_CONFIGURATION: Release
+    ports:
+      - "8080:8080"
+    networks:
+      - net
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: "http://+:8080"
+networks:
+  net:
+
