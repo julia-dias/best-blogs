@@ -1,6 +1,6 @@
 using System;
 
-namespace Model
+namespace Model.Comments
 {
     public record Comment
     {

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using Model;
+using Model.Comments;
+using Model.Posts;
 
 namespace Repository
 {

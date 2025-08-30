@@ -1,9 +1,13 @@
+using Api.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Model.Comments;
+using Model.Posts;
 using Repository;
+using Repository.Repositories;
 
 namespace Api
 {
@@ -21,6 +25,9 @@ namespace Api
         {
             services.AddDbContext<BlogContext>(x => x.UseInMemoryDatabase("InMemoryDb"));
             services.AddControllers();
+
+            services.RegisterRepositories();
+            services.RegisterServices();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -1,6 +1,6 @@
 using System;
 
-namespace Model
+namespace Model.Posts
 {
     public record Post
     {
