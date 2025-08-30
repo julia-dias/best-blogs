@@ -39,7 +39,9 @@ namespace Api.Controllers
         {
             var post = _postService.Get(id);
             if (post == null)
+            {
                 return NotFound();
+            }
 
             return Ok(post);
         }

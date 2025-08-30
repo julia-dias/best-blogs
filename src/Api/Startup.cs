@@ -4,10 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Model.Comments;
-using Model.Posts;
 using Repository;
-using Repository.Repositories;
 
 namespace Api
 {
@@ -28,11 +25,15 @@ namespace Api
 
             services.RegisterRepositories();
             services.RegisterServices();
+
+            services.AddSwagger();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseConfiguredSwagger();
+
             app.UseRouting();
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
