@@ -4,14 +4,14 @@ namespace Api.Dtos.Comments
 {
     public record CommentResponse
     {
-        public Guid Id { get; set; }
+        public Guid Id { get; init; }
 
-        public Guid PostId { get; set; }
+        public Guid PostId { get; init; }
 
-        public string Content { get; set; }
+        public string Content { get; init; }
 
-        public string Author { get; set; }
+        public string Author { get; init; }
 
-        public DateTime CreationDate { get; set; }
+        public DateTime CreationDate { get; init; }
     }
 }

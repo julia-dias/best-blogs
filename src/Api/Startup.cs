@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Repository;
 
 namespace Api
@@ -32,7 +33,10 @@ namespace Api
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            app.UseConfiguredSwagger();
+            if (env.IsDevelopment())
+            {
+                app.UseConfiguredSwagger();
+            }
 
             app.UseRouting();
 

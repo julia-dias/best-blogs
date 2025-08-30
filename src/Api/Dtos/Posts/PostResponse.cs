@@ -4,12 +4,12 @@ namespace Api.Dtos.Posts
 {
     public record PostResponse
     {
-        public Guid Id { get; set; }
+        public Guid Id { get; init; }
 
-        public string Title { get; set; }
+        public string Title { get; init; }
 
-        public string Content { get; set; }
+        public string Content { get; init; }
 
-        public DateTime CreationDate { get; set; }
+        public DateTime CreationDate { get; init; }
     }
 }

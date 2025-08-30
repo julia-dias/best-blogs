@@ -82,5 +82,48 @@ namespace Api.Tests.Controllers
             Assert.Equal(result.Id, expectedId);
             Assert.Equal(result, expectedCommentResponse);
         }
+
+        //[Fact]
+        //public void GetById_Returns_NotFound()
+        //{
+
+        //}
+
+        [Fact]
+        public void Create_Returns_Entity()
+        {
+            // Arrange
+            var expectedRequest = new CommentRequest
+            {
+                PostId = Guid.NewGuid(),
+                Content = "some content",
+                Author = "any author"
+            };
+
+            var expectedDomain = new Comment
+            {
+                Id = Guid.NewGuid(),
+                PostId = expectedRequest.PostId,
+                Content = expectedRequest.Content,
+                Author = expectedRequest.Author,
+                CreationDate = DateTime.UtcNow,
+            };
+
+            _mockCommentService
+                .Setup(s => s.Create(It.IsAny<Comment>()))
+                .Returns(expectedDomain);
+
+            // Act
+            var actionResult = _commentController.Post(expectedRequest);
+
+            // Assert
+            var createdAtAction = Assert.IsType<CreatedAtActionResult>(actionResult.Result);
+            var result = Assert.IsType<CommentResponse>(createdAtAction.Value);
+
+            Assert.NotEqual(Guid.Empty, result.Id);
+            Assert.Equal(expectedRequest.PostId, result.PostId);
+            Assert.Equal(expectedRequest.Content, result.Content);
+            Assert.Equal(expectedRequest.Author, result.Author);
+        }
     }
 }
