@@ -1,9 +1,12 @@
+using Api.Dtos.Comments;
+using Api.Mappers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Model.Comments;
 using Service.Comments;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Api.Controllers
 {
@@ -23,15 +26,18 @@ namespace Api.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<Comment>> GetAll()
+        public ActionResult<IEnumerable<CommentResponse>> GetAll()
         {
             var comments = _commentService.GetAll();
 
-            return Ok(comments);
+            var commentsResponse = comments
+                .Select(x => x.ToResponse());
+
+            return Ok(commentsResponse);
         }
 
         [HttpGet("{id:guid}")]
-        public ActionResult<Comment> Get([FromRoute] Guid id)
+        public ActionResult<CommentResponse> Get([FromRoute] Guid id)
         {
             var comment = _commentService.Get(id);
 
@@ -40,13 +46,15 @@ namespace Api.Controllers
                 return NotFound();
             }
 
-            return Ok(comment);
+            return Ok(comment.ToResponse());
         }
 
         [HttpPost]
-        public ActionResult<Comment> Post([FromBody] Comment comment)
+        public ActionResult<CommentResponse> Post([FromBody] CommentRequest request)
         {
-            var createdComment = _commentService.Create(comment);
+            var domain = request.ToDomain();
+
+            var createdComment = _commentService.Create(domain);
 
             return CreatedAtAction(
                 nameof(Get),
@@ -54,25 +62,22 @@ namespace Api.Controllers
                 { 
                     id = createdComment.Id 
                 },
-                createdComment);
+                createdComment.ToResponse());
         }
 
         [HttpPut("{id:guid}")]
-        public IActionResult Put([FromRoute] Guid id, [FromBody] Comment comment)
+        public ActionResult<CommentResponse> Put([FromRoute] Guid id, [FromBody] CommentRequest request)
         {
-            if (id != comment.Id)
-            {
-                return BadRequest("Invalid Id.");
-            }
+            var domain = request.ToDomain(id);
 
-            var updatedComment = _commentService.Update(comment);
+            var updatedComment = _commentService.Update(domain);
 
             if (updatedComment == null)
             {
                 return NotFound();
             }
 
-            return Ok(updatedComment);
+            return Ok(updatedComment.ToResponse());
         }
 
         [HttpDelete("{id:guid}")]

@@ -1,4 +1,5 @@
 using Api.Controllers;
+using Api.Dtos.Posts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Model.Comments;
@@ -11,7 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
-namespace Api.Tests
+namespace Api.Tests.Controllers
 {
     public class PostControllerTests
     {
@@ -35,24 +36,29 @@ namespace Api.Tests
         public void GetAll_Returns_AllExisting()
         {
             // Arrange
-            var expected = new List<Post>
+            var expectedDomain = new List<Post>
             {
                 new() { Id = Guid.NewGuid(), Title = "First post" },
                 new() { Id = Guid.NewGuid(), Title = "Second post" }
             };
+            var expectedResponse = new List<PostResponse>
+            {
+                new() { Id = expectedDomain.First().Id, Title = expectedDomain.First().Title },
+                new() { Id = expectedDomain.Last().Id, Title = expectedDomain.Last().Title },
+            };
             _mockPostService
                 .Setup(s => s.GetAll())
-                .Returns(expected);
+                .Returns(expectedDomain);
 
             // Act
             var actual = _postController.GetAll();
 
             // Assert
             var okObjectResult = Assert.IsType<OkObjectResult>(actual.Result);
-            var result = Assert.IsAssignableFrom<IEnumerable<Post>>(okObjectResult.Value);
+            var result = Assert.IsAssignableFrom<IEnumerable<PostResponse>>(okObjectResult.Value);
 
-            Assert.Equal(expected.Count, result.Count());
-            Assert.Equal(expected, result);
+            Assert.Equal(expectedResponse.Count, result.Count());
+            Assert.Equal(expectedResponse, result);
         }
 
         [Fact]
@@ -61,6 +67,10 @@ namespace Api.Tests
             // Arrange
             var expectedId = Guid.NewGuid();
             var expectedPost = new Post
+            {
+                Id = expectedId,
+            };
+            var expectedPostResponse = new PostResponse
             {
                 Id = expectedId,
             };
@@ -74,9 +84,10 @@ namespace Api.Tests
 
             // Assert
             var okObjectResult = Assert.IsType<OkObjectResult>(actual.Result);
-            var result = Assert.IsAssignableFrom<Post>(okObjectResult.Value);
+            var result = Assert.IsAssignableFrom<PostResponse>(okObjectResult.Value);
 
             Assert.Equal(result.Id, expectedId);
+            Assert.Equal(result, expectedPostResponse);
         }
     }
 }

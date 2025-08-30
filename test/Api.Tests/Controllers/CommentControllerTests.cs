@@ -1,4 +1,5 @@
 using Api.Controllers;
+using Api.Dtos.Comments;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Model.Comments;
@@ -7,9 +8,10 @@ using Moq;
 using Service.Comments;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 
-namespace Api.Tests
+namespace Api.Tests.Controllers
 {
     public class CommentControllerTests
     {
@@ -33,6 +35,11 @@ namespace Api.Tests
                 new() { Id = Guid.NewGuid(), PostId = Guid.NewGuid() },
                 new() { Id = Guid.NewGuid(), PostId = Guid.NewGuid() },
             };
+            var expectedResponse = new List<CommentResponse>
+            {
+                new() { Id = expected.First().Id, PostId = expected.First().PostId },
+                new() { Id = expected.Last().Id, PostId = expected.Last().PostId },
+            };
             _mockCommentService
                .Setup(s => s.GetAll())
                .Returns(expected);
@@ -42,9 +49,9 @@ namespace Api.Tests
 
             // Assert
             var okObjectResult = Assert.IsType<OkObjectResult>(actual.Result);
-            var result = Assert.IsAssignableFrom<IEnumerable<Comment>>(okObjectResult.Value);
+            var result = Assert.IsAssignableFrom<IEnumerable<CommentResponse>>(okObjectResult.Value);
 
-            Assert.Equal(expected, result);
+            Assert.Equal(expectedResponse, result);
         }
 
         [Fact]
@@ -53,6 +60,10 @@ namespace Api.Tests
             // Arrange
             var expectedId = Guid.NewGuid();
             var expectedComment = new Comment
+            {
+                Id = expectedId,
+            };
+            var expectedCommentResponse = new CommentResponse
             {
                 Id = expectedId,
             };
@@ -66,9 +77,10 @@ namespace Api.Tests
 
             // Assert
             var okObjectResult = Assert.IsType<OkObjectResult>(actual.Result);
-            var result = Assert.IsAssignableFrom<Comment>(okObjectResult.Value);
+            var result = Assert.IsAssignableFrom<CommentResponse>(okObjectResult.Value);
 
             Assert.Equal(result.Id, expectedId);
+            Assert.Equal(result, expectedCommentResponse);
         }
     }
 }

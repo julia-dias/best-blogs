@@ -1,5 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using Api.Dtos.Comments;
+using Api.Dtos.Posts;
+using Api.Mappers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Model.Comments;
@@ -28,14 +32,18 @@ namespace Api.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<Post>> GetAll()
+        public ActionResult<IEnumerable<PostResponse>> GetAll()
         {
             var posts = _postService.GetAll();
-            return Ok(posts);
+
+            var postsResponse = posts
+                .Select(x => x.ToResponse());
+
+            return Ok(postsResponse);
         }
 
         [HttpGet("{id:guid}")]
-        public ActionResult<Post> Get([FromRoute] Guid id)
+        public ActionResult<PostResponse> Get([FromRoute] Guid id)
         {
             var post = _postService.Get(id);
             if (post == null)
@@ -43,38 +51,38 @@ namespace Api.Controllers
                 return NotFound();
             }
 
-            return Ok(post);
+            return Ok(post.ToResponse());
         }
 
         [HttpPost]
-        public ActionResult<Post> Post([FromBody] Post post)
+        public ActionResult<PostResponse> Post([FromBody] PostRequest request)
         {
-            var createdPost = _postService.Create(post);
+            var domain = request.ToDomain();
+
+            var createdPost = _postService.Create(domain);
+
             return CreatedAtAction(
                 nameof(Get), 
                 new
                 { 
                     id = createdPost.Id
                 }, 
-                createdPost);
+                createdPost.ToResponse());
         }
 
         [HttpPut("{id:guid}")]
-        public ActionResult<Post> Put([FromRoute] Guid id, [FromBody] Post post)
+        public ActionResult<PostResponse> Put([FromRoute] Guid id, [FromBody] PostRequest request)
         {
-            if (id != post.Id)
-            {
-                return BadRequest("Invalid Id.");
-            }
+            var domain = request.ToDomain(id);
 
-            var updatedPost = _postService.Update(post);
+            var updatedPost = _postService.Update(domain);
 
             if (updatedPost == null)
             {
                 return NotFound();
             }
 
-            return Ok(updatedPost);
+            return Ok(updatedPost.ToResponse());
         }
 
         [HttpDelete("{id:guid}")]
@@ -91,11 +99,14 @@ namespace Api.Controllers
         }
 
         [HttpGet("{id:guid}/comments")]
-        public ActionResult<IEnumerable<Comment>> GetComments([FromRoute] Guid id)
+        public ActionResult<IEnumerable<CommentResponse>> GetComments([FromRoute] Guid id)
         {
             var comments = _commentService.GetByPostId(id);
 
-            return Ok(comments);
+            var commentsResponse = comments
+                .Select(x => x.ToResponse());
+
+            return Ok(commentsResponse);
         }
     }
 }

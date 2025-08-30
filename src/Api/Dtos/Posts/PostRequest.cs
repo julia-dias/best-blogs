@@ -1,6 +1,9 @@
-﻿namespace Api.Dtos.Post
+﻿namespace Api.Dtos.Posts
 {
-    public class PostRequest
+    public record PostRequest
     {
+        public string Title { get; set; }
+
+        public string Content { get; set; }
     }
 }
