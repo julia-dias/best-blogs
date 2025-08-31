@@ -52,6 +52,22 @@ namespace Repository.Repositories
             return true;
         }
 
+        public bool DeleteByPostId(Guid postId)
+        {
+            var comments = _context.Comments
+                .Where(c => c.PostId == postId)
+                .ToList();
+
+            if (!comments.Any())
+            {
+                return false;
+            }
+
+            _context.Comments.RemoveRange(comments);
+            _context.SaveChanges();
+            return true;
+        }
+
         public IEnumerable<Comment> GetByPostId(Guid postId)
         {
             return _context.Comments

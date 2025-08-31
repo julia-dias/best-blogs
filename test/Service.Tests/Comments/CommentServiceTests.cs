@@ -4,13 +4,14 @@ using Moq;
 using Service.Comments;
 using Service.Exceptions;
 using Service.Posts;
+using Service.Posts.Validators;
 
 namespace Service.Tests.Comments
 {
     public class CommentServiceTests
     {
         private readonly Mock<ICommentRepository> _mockCommentRepository;
-        private readonly Mock<IPostService> _mockPostService;
+        private readonly Mock<IPostValidator> _mockPostValidator;
         private readonly CommentService _commentService;
 
         private const string PostNotFoundMessage = "Post with Id not found";
@@ -19,10 +20,10 @@ namespace Service.Tests.Comments
         public CommentServiceTests()
         {
             _mockCommentRepository = new Mock<ICommentRepository>();
-            _mockPostService = new Mock<IPostService>();
+            _mockPostValidator = new Mock<IPostValidator>();
             _commentService = new CommentService(
                 _mockCommentRepository.Object,
-                _mockPostService.Object);
+                _mockPostValidator.Object);
         }
 
         [Fact]
@@ -35,9 +36,8 @@ namespace Service.Tests.Comments
                 Content = "Test",
                 Author = "Author"
             };
-            _mockPostService
-                .Setup(p => p.Get(comment.PostId))
-                .Returns(new Post { Id = comment.PostId });
+            _mockPostValidator
+                .Setup(p => p.ValidatePostExists(comment.PostId));
             _mockCommentRepository
                 .Setup(r => r.Create(comment)).Returns(comment);
 
@@ -59,12 +59,13 @@ namespace Service.Tests.Comments
                 Content = "Test",
                 Author = "Author"
             };
-            _mockPostService
-                .Setup(p => p.Get(comment.PostId))
-                .Returns((Post)null);
+            _mockPostValidator
+               .Setup(p => p.ValidatePostExists(comment.PostId))
+               .Throws(new EntityNotFoundException($"{PostNotFoundMessage}: {comment.PostId}")); ;
 
             // Act & Assert
             var ex = Assert.Throws<EntityNotFoundException>(() => _commentService.Create(comment));
+
             Assert.Equal($"{PostNotFoundMessage}: {comment.PostId}", ex.Message);
             _mockCommentRepository.Verify(r => r.Create(It.IsAny<Comment>()), Times.Never);
         }

@@ -14,6 +14,8 @@ namespace Service.Comments
 
         bool Delete(Guid id);
 
+        bool DeleteByPostId(Guid postId);
+
         IEnumerable<Comment> GetByPostId(Guid postId);
     }
 }

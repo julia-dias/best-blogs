@@ -1,17 +1,27 @@
 ﻿using Model.Posts;
+using Service.Comments;
 using Service.Exceptions;
+using Microsoft.Extensions.Logging;
 
 namespace Service.Posts
 {
     public class PostService : IPostService
     {
+        private readonly ILogger<PostService> _logger;
         private readonly IPostRepository _postRepository;
+        private readonly ICommentService _commentService;
 
         private const string PostNotFoundMessage = "Post with Id not found";
+        private const string DeletedCommentsCascadeMessage = "Deleted comments associated with Post";
 
-        public PostService(IPostRepository postRepository)
+        public PostService(
+            ILogger<PostService> logger,
+            IPostRepository postRepository,
+            ICommentService commentService)
         {
+            _logger = logger;
             _postRepository = postRepository;
+            _commentService = commentService;
         }
 
         public Post Create(Post post)
@@ -23,6 +33,12 @@ namespace Service.Posts
 
         public bool Delete(Guid id)
         {
+            var commentsDeleted = _commentService.DeleteByPostId(id);
+            if (commentsDeleted)
+            {
+                _logger.LogInformation($"{DeletedCommentsCascadeMessage}: {id}");
+            }
+
             return _postRepository.Delete(id);
         }
 

@@ -1,29 +1,28 @@
 ﻿using Model.Comments;
 using Service.Exceptions;
 using Service.Posts;
-using System.Xml.Linq;
+using Service.Posts.Validators;
 
 namespace Service.Comments
 {
     public class CommentService : ICommentService
     {
         private readonly ICommentRepository _commentRepository;
-        private readonly IPostService _postService;
+        private readonly IPostValidator _postValidator;
 
-        private const string PostNotFoundMessage = "Post with Id not found";
         private const string CommentNotFoundInPostMessage = "Comment not found in Post";
 
         public CommentService(
             ICommentRepository commentRepository,
-            IPostService postService) 
+            IPostValidator postValidator) 
         {
             _commentRepository = commentRepository;
-            _postService = postService;
+            _postValidator = postValidator;
         }
 
         public Comment Create(Comment comment)
         {
-            ValidatePostId(comment.PostId);
+            _postValidator.ValidatePostExists(comment.PostId);
 
             comment.CreationDate = DateTime.UtcNow;
 
@@ -33,6 +32,11 @@ namespace Service.Comments
         public bool Delete(Guid id)
         {
             return _commentRepository.Delete(id);
+        }
+
+        public bool DeleteByPostId(Guid postId)
+        {
+            return _commentRepository.DeleteByPostId(postId);
         }
 
         public Comment Get(Guid id)
@@ -59,14 +63,6 @@ namespace Service.Comments
             entity.UpdateDate = DateTime.UtcNow;
 
             return _commentRepository.Update(entity);
-        }
-
-        private void ValidatePostId(Guid postId)
-        {
-            if (_postService.Get(postId) is null)
-            {
-                throw new EntityNotFoundException($"{PostNotFoundMessage}: {postId}");
-            }
         }
 
         private Comment ValidatePostIdInComment(Guid postId, Guid commentId)

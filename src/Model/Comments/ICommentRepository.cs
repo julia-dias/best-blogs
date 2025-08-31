@@ -15,6 +15,8 @@ namespace Model.Comments
 
         bool Delete(Guid id);
 
+        bool DeleteByPostId(Guid postId);
+
         IEnumerable<Comment> GetByPostId(Guid postId);
 
         Comment GetByPostIdAndCommentId(Guid postId, Guid commentId);

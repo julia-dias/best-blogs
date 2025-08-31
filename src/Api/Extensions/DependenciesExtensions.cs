@@ -4,6 +4,7 @@ using Model.Posts;
 using Repository.Repositories;
 using Service.Comments;
 using Service.Posts;
+using Service.Posts.Validators;
 
 namespace Api.Extensions
 {
@@ -17,8 +18,9 @@ namespace Api.Extensions
 
         internal static void RegisterServices(this IServiceCollection services)
         {
-            services.AddScoped<ICommentService, CommentService>();
+            services.AddScoped<IPostValidator, PostValidator>();
             services.AddScoped<IPostService, PostService>();
+            services.AddScoped<ICommentService, CommentService>();
         }
     }
 }
