@@ -27,7 +27,7 @@ namespace Service.Tests.Comments
         }
 
         [Fact]
-        public void Create_Should_CallRepository_When_PostExists()
+        public async Task Create_Should_CallRepository_When_PostExists()
         {
             // Arrange
             var comment = new Comment 
@@ -37,20 +37,21 @@ namespace Service.Tests.Comments
                 Author = "Author"
             };
             _mockPostValidator
-                .Setup(p => p.ValidatePostExists(comment.PostId));
+                .Setup(p => p.ValidatePostExistsAsync(comment.PostId));
             _mockCommentRepository
-                .Setup(r => r.Create(comment)).Returns(comment);
+                .Setup(r => r.CreateAsync(comment))
+                .ReturnsAsync(comment);
 
             // Act
-            var result = _commentService.Create(comment);
+            var result = await _commentService.CreateAsync(comment);
 
             // Assert
             Assert.Equal(comment, result);
-            _mockCommentRepository.Verify(r => r.Create(comment), Times.Once);
+            _mockCommentRepository.Verify(r => r.CreateAsync(comment), Times.Once);
         }
 
         [Fact]
-        public void Create_Should_Throw_When_PostDoesNotExist()
+        public async Task Create_Should_Throw_When_PostDoesNotExist()
         {
             // Arrange
             var comment = new Comment
@@ -60,18 +61,18 @@ namespace Service.Tests.Comments
                 Author = "Author"
             };
             _mockPostValidator
-               .Setup(p => p.ValidatePostExists(comment.PostId))
-               .Throws(new EntityNotFoundException($"{PostNotFoundMessage}: {comment.PostId}")); ;
+               .Setup(p => p.ValidatePostExistsAsync(comment.PostId))
+               .ThrowsAsync(new EntityNotFoundException($"{PostNotFoundMessage}: {comment.PostId}")); ;
 
             // Act & Assert
-            var ex = Assert.Throws<EntityNotFoundException>(() => _commentService.Create(comment));
+            var ex = await Assert.ThrowsAsync<EntityNotFoundException>(() => _commentService.CreateAsync(comment));
 
             Assert.Equal($"{PostNotFoundMessage}: {comment.PostId}", ex.Message);
-            _mockCommentRepository.Verify(r => r.Create(It.IsAny<Comment>()), Times.Never);
+            _mockCommentRepository.Verify(r => r.CreateAsync(It.IsAny<Comment>()), Times.Never);
         }
 
         [Fact]
-        public void Update_Should_CallRepository_When_PostExists()
+        public async Task Update_Should_CallRepository_When_PostExists()
         {
             // Arrange
             var comment = new Comment
@@ -83,15 +84,15 @@ namespace Service.Tests.Comments
                 CreationDate = DateTime.UtcNow,
             };
             _mockCommentRepository
-                .Setup(p => p.GetByPostIdAndCommentId(comment.PostId, comment.Id))
-                .Returns(comment);
+                .Setup(p => p.GetByPostIdAndCommentIdAsync(comment.PostId, comment.Id))
+                .ReturnsAsync(comment);
 
             _mockCommentRepository
-                .Setup(r => r.Update(comment))
-                .Returns(comment);
+                .Setup(r => r.UpdateAsync(comment))
+                .ReturnsAsync(comment);
 
             // Act
-            var result = _commentService.Update(comment);
+            var result = await _commentService.UpdateAsync(comment);
 
             // Assert
             Assert.Equal(comment.Id, result.Id);
@@ -100,11 +101,11 @@ namespace Service.Tests.Comments
             Assert.Equal(comment.Author, result.Author);
             Assert.Equal(comment.CreationDate, result.CreationDate);
             Assert.NotNull(result.UpdateDate);
-            _mockCommentRepository.Verify(r => r.Update(comment), Times.Once);
+            _mockCommentRepository.Verify(r => r.UpdateAsync(comment), Times.Once);
         }
 
         [Fact]
-        public void Update_Should_Throw_When_PostDoesNotExist()
+        public async Task Update_Should_Throw_When_PostDoesNotExist()
         {
             // Arrange
             var comment = new Comment
@@ -115,13 +116,13 @@ namespace Service.Tests.Comments
                 Author = "Author" };
 
             _mockCommentRepository
-                .Setup(p => p.GetByPostIdAndCommentId(comment.PostId, comment.Id))
-                .Returns((Comment)null);
+                .Setup(p => p.GetByPostIdAndCommentIdAsync(comment.PostId, comment.Id))
+                .ReturnsAsync((Comment)null);
 
             // Act & Assert
-            var ex = Assert.Throws<EntityNotFoundException>(() => _commentService.Update(comment));
+            var ex = await Assert.ThrowsAsync<EntityNotFoundException>(() => _commentService.UpdateAsync(comment));
             Assert.Equal($"{CommentNotFoundInPostMessage}: {comment.PostId}", ex.Message);
-            _mockCommentRepository.Verify(r => r.Update(It.IsAny<Comment>()), Times.Never);
+            _mockCommentRepository.Verify(r => r.UpdateAsync(It.IsAny<Comment>()), Times.Never);
         }
     }
 }

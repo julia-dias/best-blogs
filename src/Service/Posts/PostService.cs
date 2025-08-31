@@ -24,44 +24,44 @@ namespace Service.Posts
             _commentService = commentService;
         }
 
-        public Post Create(Post post)
+        public async Task<Post> CreateAsync(Post post)
         {
             post.CreationDate = DateTime.UtcNow;
 
-            return _postRepository.Create(post);
+            return await _postRepository.CreateAsync(post);
         }
 
-        public bool Delete(Guid id)
+        public async Task<bool> DeleteAsync(Guid id)
         {
-            var commentsDeleted = _commentService.DeleteByPostId(id);
+            var commentsDeleted = await _commentService.DeleteByPostIdAsync(id);
             if (commentsDeleted)
             {
                 _logger.LogInformation($"{DeletedCommentsCascadeMessage}: {id}");
             }
 
-            return _postRepository.Delete(id);
+            return await _postRepository.DeleteAsync(id);
         }
 
-        public Post Get(Guid id)
+        public async Task<Post> GetAsync(Guid id)
         {
-            return _postRepository.Get(id);
+            return await _postRepository.GetAsync(id);
         }
 
-        public IEnumerable<Post> GetAll()
+        public async Task<IEnumerable<Post>> GetAllAsync()
         {
-            return _postRepository.GetAll();
+            return await _postRepository.GetAllAsync();
         }
 
-        public Post Update(Post post)
+        public async Task<Post> UpdateAsync(Post post)
         {
-            var entity = Get(post.Id)
+            var entity = await GetAsync(post.Id)
                 ?? throw new EntityNotFoundException($"{PostNotFoundMessage}: {post.Id}");
 
             entity.Title = post.Title;
             entity.Content = post.Content;
             entity.UpdateDate = DateTime.UtcNow;
 
-            return _postRepository.Update(entity);
+            return await _postRepository.UpdateAsync(entity);
         }
     }
 }

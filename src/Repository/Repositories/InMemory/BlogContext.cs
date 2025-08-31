@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Model.Comments;
 using Model.Posts;
 
-namespace Repository
+namespace Repository.Repositories.InMemory
 {
     // this is used for our verification tests, don't rename or change the access modifier
     public class BlogContext : DbContext

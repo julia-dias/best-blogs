@@ -1,18 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Model.Posts
 {
     public interface IPostRepository
     {
-        IEnumerable<Post> GetAll();
+        Task<IEnumerable<Post>> GetAllAsync();
 
-        Post Get(Guid id);
+        Task<Post> GetAsync(Guid id);
 
-        Post Create(Post post);
+        Task<Post> CreateAsync(Post post);
 
-        Post Update(Post post);
+        Task<Post> UpdateAsync(Post post);
 
-        bool Delete(Guid id);
+        Task<bool> DeleteAsync(Guid id);
     }
 }

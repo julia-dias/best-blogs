@@ -6,7 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Repository;
+using Repository.Repositories;
+using Repository.Repositories.InMemory;
 
 namespace Api
 {
@@ -22,7 +23,21 @@ namespace Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<BlogContext>(x => x.UseInMemoryDatabase("InMemoryDb"));
+            var useInMemoryDb = Configuration.GetValue<bool>("USE_IN_MEMORY_DB");
+            if (useInMemoryDb)
+            {
+                services.AddDbContext<BlogContext>(x => x.UseInMemoryDatabase("InMemoryDb"));
+            }
+            else
+            {
+                var connectionString = Configuration.GetConnectionString("DB_BESTBLOGS");
+                services.AddScoped<IDatabaseConnection>((provider) =>
+                {
+                    return new DatabaseConnection(connectionString);
+                });
+            }
+            //services.RegisterDatabase(Configuration);
+
             services.AddControllers();
 
             services.RegisterRepositories();

@@ -6,6 +6,7 @@ using Service.Comments;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Api.Controllers.v1
 {
@@ -25,9 +26,9 @@ namespace Api.Controllers.v1
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<CommentResponse>> GetAll()
+        public async Task<ActionResult<IEnumerable<CommentResponse>>> GetAll()
         {
-            var comments = _commentService.GetAll();
+            var comments = await _commentService.GetAllAsync();
 
             var commentsResponse = comments
                 .Select(x => x.ToResponse());
@@ -36,9 +37,9 @@ namespace Api.Controllers.v1
         }
 
         [HttpGet("{id:guid}")]
-        public ActionResult<CommentResponse> Get([FromRoute] Guid id)
+        public async Task<ActionResult<CommentResponse>> Get([FromRoute] Guid id)
         {
-            var comment = _commentService.Get(id);
+            var comment = await _commentService.GetAsync(id);
 
             if (comment == null)
             {
@@ -49,11 +50,11 @@ namespace Api.Controllers.v1
         }
 
         [HttpPost]
-        public ActionResult<CommentResponse> Post([FromBody] CommentRequest request)
+        public async Task<ActionResult<CommentResponse>> Post([FromBody] CommentRequest request)
         {
             var domain = request.ToDomain();
 
-            var createdComment = _commentService.Create(domain);
+            var createdComment = await _commentService.CreateAsync(domain);
 
             return CreatedAtAction(
                 nameof(Get),
@@ -65,11 +66,11 @@ namespace Api.Controllers.v1
         }
 
         [HttpPut("{id:guid}")]
-        public ActionResult<CommentResponse> Put([FromRoute] Guid id, [FromBody] CommentRequest request)
+        public async Task<ActionResult<CommentResponse>> Put([FromRoute] Guid id, [FromBody] CommentRequest request)
         {
             var domain = request.ToDomain(id);
 
-            var updatedComment = _commentService.Update(domain);
+            var updatedComment = await _commentService.UpdateAsync(domain);
 
             if (updatedComment == null)
             {
@@ -80,9 +81,9 @@ namespace Api.Controllers.v1
         }
 
         [HttpDelete("{id:guid}")]
-        public IActionResult Delete([FromRoute] Guid id)
+        public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
-            var deleted = _commentService.Delete(id);
+            var deleted = await _commentService.DeleteAsync(id);
 
             if (!deleted)
             {

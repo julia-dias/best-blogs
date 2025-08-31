@@ -10,6 +10,7 @@ using Service.Comments;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Api.Tests.Controllers
@@ -28,7 +29,7 @@ namespace Api.Tests.Controllers
         }
 
         [Fact]
-        public void GetAll_ReturnsOk_AllExisting()
+        public async Task GetAll_ReturnsOk_AllExisting()
         {
             // Arrange
             var expected = new List<Comment>
@@ -42,11 +43,11 @@ namespace Api.Tests.Controllers
                 new() { Id = expected.Last().Id, PostId = expected.Last().PostId },
             };
             _mockCommentService
-               .Setup(s => s.GetAll())
-               .Returns(expected);
+               .Setup(s => s.GetAllAsync())
+               .ReturnsAsync(expected);
 
             // Act
-            var actual = _commentController.GetAll();
+            var actual = await _commentController.GetAll();
 
             // Assert
             var okObjectResult = Assert.IsType<OkObjectResult>(actual.Result);
@@ -56,7 +57,7 @@ namespace Api.Tests.Controllers
         }
 
         [Fact]
-        public void GetById_ReturnsOk_Entity()
+        public async Task GetById_ReturnsOk_Entity()
         {
             // Arrange
             var expectedId = Guid.NewGuid();
@@ -70,11 +71,11 @@ namespace Api.Tests.Controllers
             };
 
             _mockCommentService
-                .Setup(s => s.Get(expectedId))
-                .Returns(expectedComment);
+                .Setup(s => s.GetAsync(expectedId))
+                .ReturnsAsync(expectedComment);
 
             // Act
-            var actual = _commentController.Get(expectedId);
+            var actual = await _commentController.Get(expectedId);
 
             // Assert
             var okObjectResult = Assert.IsType<OkObjectResult>(actual.Result);
@@ -85,23 +86,23 @@ namespace Api.Tests.Controllers
         }
 
         [Fact]
-        public void GetById_ReturnsNotFound_WhenCommentDoesNotExist()
+        public async Task GetById_ReturnsNotFound_WhenCommentDoesNotExist()
         {
             // Arrange
             var id = Guid.NewGuid();
             _mockCommentService
-                .Setup(s => s.Get(id))
-                .Returns((Comment)null);
+                .Setup(s => s.GetAsync(id))
+                .ReturnsAsync((Comment)null);
 
             // Act
-            var result = _commentController.Get(id);
+            var result = await _commentController.Get(id);
 
             // Assert
             Assert.IsType<NotFoundResult>(result.Result);
         }
 
         [Fact]
-        public void Create_Returns201_Entity()
+        public async Task Create_Returns201_Entity()
         {
             // Arrange
             var now = DateTime.UtcNow;
@@ -116,11 +117,11 @@ namespace Api.Tests.Controllers
             expectedDomain.CreationDate = now;
             
             _mockCommentService
-                .Setup(s => s.Create(It.IsAny<Comment>()))
-                .Returns(expectedDomain);
+                .Setup(s => s.CreateAsync(It.IsAny<Comment>()))
+                .ReturnsAsync(expectedDomain);
 
             // Act
-            var actionResult = _commentController.Post(expectedRequest);
+            var actionResult = await _commentController.Post(expectedRequest);
 
             // Assert
             var createdAtAction = Assert.IsType<CreatedAtActionResult>(actionResult.Result);
@@ -131,18 +132,18 @@ namespace Api.Tests.Controllers
         }
 
         [Fact]
-        public void Edit_ReturnsOk_WhenCommentUpdated()
+        public async Task Edit_ReturnsOk_WhenCommentUpdated()
         {
             // Arrange
             var id = Guid.NewGuid();
             var request = new CommentRequest { Content = "Updated", Author = "Author" };
             var updatedComment = request.ToDomain(id);
             _mockCommentService
-                .Setup(s => s.Update(It.IsAny<Comment>()))
-                .Returns(updatedComment);
+                .Setup(s => s.UpdateAsync(It.IsAny<Comment>()))
+                .ReturnsAsync(updatedComment);
 
             // Act
-            var result = _commentController.Put(id, request);
+            var result = await _commentController.Put(id, request);
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
@@ -151,43 +152,49 @@ namespace Api.Tests.Controllers
         }
 
         [Fact]
-        public void Edit_ReturnsNotFound_WhenUpdateFails()
+        public async Task Edit_ReturnsNotFound_WhenUpdateFails()
         {
             // Arrange
             var id = Guid.NewGuid();
             var request = new CommentRequest { Content = "Updated", Author = "Author" };
-            _mockCommentService.Setup(s => s.Update(It.IsAny<Model.Comments.Comment>())).Returns((Model.Comments.Comment)null);
+            _mockCommentService
+                .Setup(s => s.UpdateAsync(It.IsAny<Model.Comments.Comment>()))
+                .ReturnsAsync((Comment)null);
 
             // Act
-            var result = _commentController.Put(id, request);
+            var result = await _commentController.Put(id, request);
 
             // Assert
             Assert.IsType<NotFoundResult>(result.Result);
         }
 
         [Fact]
-        public void Delete_ReturnsNoContent_WhenDeleted()
+        public async Task Delete_ReturnsNoContent_WhenDeleted()
         {
             // Arrange
             var id = Guid.NewGuid();
-            _mockCommentService.Setup(s => s.Delete(id)).Returns(true);
+            _mockCommentService
+                .Setup(s => s.DeleteAsync(id))
+                .ReturnsAsync(true);
 
             // Act
-            var result = _commentController.Delete(id);
+            var result = await _commentController.Delete(id);
 
             // Assert
             Assert.IsType<NoContentResult>(result);
         }
 
         [Fact]
-        public void Delete_ReturnsNotFound_WhenDeleteFails()
+        public async Task Delete_ReturnsNotFound_WhenDeleteFails()
         {
             // Arrange
             var id = Guid.NewGuid();
-            _mockCommentService.Setup(s => s.Delete(id)).Returns(false);
+            _mockCommentService
+                .Setup(s => s.DeleteAsync(id))
+                .ReturnsAsync(false);
 
             // Act
-            var result = _commentController.Delete(id);
+            var result = await _commentController.Delete(id);
 
             // Assert
             Assert.IsType<NotFoundResult>(result);

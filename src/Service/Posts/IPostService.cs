@@ -4,14 +4,14 @@ namespace Service.Posts
 {
     public interface IPostService
     {
-        IEnumerable<Post> GetAll();
+        Task<IEnumerable<Post>> GetAllAsync();
 
-        Post Get(Guid id);
+        Task<Post> GetAsync(Guid id);
 
-        Post Create(Post post);
+        Task<Post> CreateAsync(Post post);
 
-        Post Update(Post post);
+        Task<Post> UpdateAsync(Post post);
 
-        bool Delete(Guid id);
+        Task<bool> DeleteAsync(Guid id);
     }
 }

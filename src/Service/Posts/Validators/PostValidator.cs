@@ -14,9 +14,9 @@ namespace Service.Posts.Validators
             _postRepository = postRepository;
         }
 
-        public void ValidatePostExists(Guid postId)
+        public async Task ValidatePostExistsAsync(Guid postId)
         {
-            if (_postRepository.Get(postId) is null)
+            if (await _postRepository.GetAsync(postId) is null)
             {
                 throw new EntityNotFoundException($"{PostNotFoundMessage}: {postId}");
             }

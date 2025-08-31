@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Api.Dtos.Comments;
 using Api.Dtos.Posts;
 using Api.Mappers;
@@ -30,9 +31,9 @@ namespace Api.Controllers.v1
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<PostResponse>> GetAll()
+        public async Task<ActionResult<IEnumerable<PostResponse>>> GetAll()
         {
-            var posts = _postService.GetAll();
+            var posts = await _postService.GetAllAsync();
 
             var postsResponse = posts
                 .Select(x => x.ToResponse());
@@ -41,9 +42,9 @@ namespace Api.Controllers.v1
         }
 
         [HttpGet("{id:guid}")]
-        public ActionResult<PostResponse> Get([FromRoute] Guid id)
+        public async Task<ActionResult<PostResponse>> Get([FromRoute] Guid id)
         {
-            var post = _postService.Get(id);
+            var post = await _postService.GetAsync(id);
             if (post == null)
             {
                 return NotFound();
@@ -53,11 +54,11 @@ namespace Api.Controllers.v1
         }
 
         [HttpPost]
-        public ActionResult<PostResponse> Post([FromBody] PostRequest request)
+        public async Task<ActionResult<PostResponse>> Post([FromBody] PostRequest request)
         {
             var domain = request.ToDomain();
 
-            var createdPost = _postService.Create(domain);
+            var createdPost = await _postService.CreateAsync(domain);
 
             return CreatedAtAction(
                 nameof(Get), 
@@ -69,11 +70,11 @@ namespace Api.Controllers.v1
         }
 
         [HttpPut("{id:guid}")]
-        public ActionResult<PostResponse> Put([FromRoute] Guid id, [FromBody] PostRequest request)
+        public async Task<ActionResult<PostResponse>> Put([FromRoute] Guid id, [FromBody] PostRequest request)
         {
             var domain = request.ToDomain(id);
 
-            var updatedPost = _postService.Update(domain);
+            var updatedPost = await _postService.UpdateAsync(domain);
 
             if (updatedPost == null)
             {
@@ -84,9 +85,9 @@ namespace Api.Controllers.v1
         }
 
         [HttpDelete("{id:guid}")]
-        public IActionResult Delete([FromRoute] Guid id)
+        public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
-            var deleted = _postService.Delete(id);
+            var deleted = await _postService.DeleteAsync(id);
 
             if (!deleted)
             {
@@ -97,9 +98,9 @@ namespace Api.Controllers.v1
         }
 
         [HttpGet("{id:guid}/comments")]
-        public ActionResult<IEnumerable<CommentResponse>> GetComments([FromRoute] Guid postId)
+        public async Task<ActionResult<IEnumerable<CommentResponse>>> GetComments([FromRoute] Guid postId)
         {
-            var comments = _commentService.GetByPostId(postId);
+            var comments = await _commentService.GetByPostIdAsync(postId);
 
             var commentsResponse = comments
                 .Select(x => x.ToResponse());

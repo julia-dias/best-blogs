@@ -8,6 +8,6 @@ namespace Service.Posts.Validators
 {
     public interface IPostValidator
     {
-        void ValidatePostExists(Guid postId);
+        Task ValidatePostExistsAsync(Guid postId);
     }
 }

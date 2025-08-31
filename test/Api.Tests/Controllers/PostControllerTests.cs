@@ -11,6 +11,7 @@ using Service.Posts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Api.Tests.Controllers
@@ -34,7 +35,7 @@ namespace Api.Tests.Controllers
         }
 
         [Fact]
-        public void GetAll_ReturnsOk_AllExisting()
+        public async Task GetAll_ReturnsOk_AllExisting()
         {
             // Arrange
             var expectedDomain = new List<Post>
@@ -48,11 +49,11 @@ namespace Api.Tests.Controllers
                 new() { Id = expectedDomain.Last().Id, Title = expectedDomain.Last().Title },
             };
             _mockPostService
-                .Setup(s => s.GetAll())
-                .Returns(expectedDomain);
+                .Setup(s => s.GetAllAsync())
+                .ReturnsAsync(expectedDomain);
 
             // Act
-            var actual = _postController.GetAll();
+            var actual = await _postController.GetAll();
 
             // Assert
             var okObjectResult = Assert.IsType<OkObjectResult>(actual.Result);
@@ -63,7 +64,7 @@ namespace Api.Tests.Controllers
         }
 
         [Fact]
-        public void GetById_ReturnsOk_Entity()
+        public async Task GetById_ReturnsOk_Entity()
         {
             // Arrange
             var expectedId = Guid.NewGuid();
@@ -77,11 +78,11 @@ namespace Api.Tests.Controllers
             };
 
             _mockPostService
-                .Setup(s => s.Get(expectedId))
-                .Returns(expectedPost);
+                .Setup(s => s.GetAsync(expectedId))
+                .ReturnsAsync(expectedPost);
 
             // Act
-            var actual = _postController.Get(expectedId);
+            var actual = await _postController.Get(expectedId);
 
             // Assert
             var okObjectResult = Assert.IsType<OkObjectResult>(actual.Result);
@@ -92,33 +93,33 @@ namespace Api.Tests.Controllers
         }
 
         [Fact]
-        public void GetById_ReturnsNotFound_WhenPostDoesNotExist()
+        public async Task GetById_ReturnsNotFound_WhenPostDoesNotExist()
         {
             // Arrange
             _mockPostService
-                .Setup(x => x.Get(It.IsAny<Guid>()))
-                .Returns((Post)null);
+                .Setup(x => x.GetAsync(It.IsAny<Guid>()))
+                .ReturnsAsync((Post)null);
 
             // Act
-            var result = _postController.Get(Guid.NewGuid());
+            var result = await _postController.Get(Guid.NewGuid());
 
             // Assert
             Assert.IsType<NotFoundResult>(result.Result);
         }
 
         [Fact]
-        public void Create_Returns201_WithPostResponse()
+        public async Task Create_Returns201_WithPostResponse()
         {
             // Arrange
             var request = new PostRequest { Title = "New Post" };
             var created = new Post { Id = Guid.NewGuid(), Title = request.Title };
 
             _mockPostService
-                .Setup(x => x.Create(It.IsAny<Post>()))
-                .Returns(created);
+                .Setup(x => x.CreateAsync(It.IsAny<Post>()))
+                .ReturnsAsync(created);
 
             // Act
-            var result = _postController.Post(request);
+            var result = await _postController.Post(request);
 
             // Assert
             var createdAt = Assert.IsType<CreatedAtActionResult>(result.Result);
@@ -128,7 +129,7 @@ namespace Api.Tests.Controllers
         }
 
         [Fact]
-        public void Edit_ReturnsOk_WhenPostUpdated()
+        public async Task Edit_ReturnsOk_WhenPostUpdated()
         {
             // Arrange
             var id = Guid.NewGuid();
@@ -136,11 +137,11 @@ namespace Api.Tests.Controllers
             var updated = new Post { Id = id, Title = "Updated" };
 
             _mockPostService
-                .Setup(x => x.Update(It.IsAny<Post>()))
-                .Returns(updated);
+                .Setup(x => x.UpdateAsync(It.IsAny<Post>()))
+                .ReturnsAsync(updated);
 
             // Act
-            var result = _postController.Put(id, request);
+            var result = await _postController.Put(id, request);
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
@@ -149,52 +150,52 @@ namespace Api.Tests.Controllers
         }
 
         [Fact]
-        public void Edit_ReturnNotFound_WhenUpdateFails()
+        public async Task Edit_ReturnNotFound_WhenUpdateFails()
         {
             // Arrange
             _mockPostService
-                .Setup(x => x.Update(It.IsAny<Post>()))
-                .Returns((Post)null);
+                .Setup(x => x.UpdateAsync(It.IsAny<Post>()))
+                .ReturnsAsync((Post)null);
 
             // Act
-            var result = _postController.Put(Guid.NewGuid(), new PostRequest());
+            var result = await _postController.Put(Guid.NewGuid(), new PostRequest());
 
             // Assert
             Assert.IsType<NotFoundResult>(result.Result);
         }
 
         [Fact]
-        public void Delete_ShouldReturnNoContent_WhenDeleted()
+        public async Task Delete_ShouldReturnNoContent_WhenDeleted()
         {
             // Arrange
             _mockPostService
-                .Setup(x => x.Delete(It.IsAny<Guid>()))
-                .Returns(true);
+                .Setup(x => x.DeleteAsync(It.IsAny<Guid>()))
+                .ReturnsAsync(true);
 
             // Act
-            var result = _postController.Delete(Guid.NewGuid());
+            var result = await _postController.Delete(Guid.NewGuid());
 
             // Assert
             Assert.IsType<NoContentResult>(result);
         }
 
         [Fact]
-        public void Delete_ShouldReturnNotFound_WhenNotDeleted()
+        public async Task Delete_ShouldReturnNotFound_WhenNotDeleted()
         {
             // Arrange
             _mockPostService
-                .Setup(x => x.Delete(It.IsAny<Guid>()))
-                .Returns(false);
+                .Setup(x => x.DeleteAsync(It.IsAny<Guid>()))
+                .ReturnsAsync(false);
 
             // Act
-            var result = _postController.Delete(Guid.NewGuid());
+            var result = await _postController.Delete(Guid.NewGuid());
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
         }
 
         [Fact]
-        public void GetCommentsByPostId_ShouldReturnOk_WithComments()
+        public async Task GetCommentsByPostId_ShouldReturnOk_WithComments()
         {
             // Arrange
             var postId = Guid.NewGuid();
@@ -203,11 +204,11 @@ namespace Api.Tests.Controllers
                 new() { Id = Guid.NewGuid(), PostId = postId, Content = "Hello" }
             };
             _mockCommentService
-                .Setup(x => x.GetByPostId(postId))
-                .Returns(comments);
+                .Setup(x => x.GetByPostIdAsync(postId))
+                .ReturnsAsync(comments);
 
             // Act
-            var result = _postController.GetComments(postId);
+            var result = await _postController.GetComments(postId);
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
@@ -216,16 +217,16 @@ namespace Api.Tests.Controllers
         }
 
         [Fact]
-        public void GetCommentsByPostId_ShouldReturnOk_AndEmpty()
+        public async Task GetCommentsByPostId_ShouldReturnOk_AndEmpty()
         {
             // Arrange
             var postId = Guid.NewGuid();
             _mockCommentService
-                .Setup(x => x.GetByPostId(postId))
-                .Returns(new List<Comment>());
+                .Setup(x => x.GetByPostIdAsync(postId))
+                .ReturnsAsync(new List<Comment>());
 
             // Act
-            var result = _postController.GetComments(postId);
+            var result = await _postController.GetComments(postId);
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result.Result);

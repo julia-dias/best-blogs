@@ -7,7 +7,9 @@
       "applicationUrl": "http://localhost:5000",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "ASPNETCORE_URLS": "http://localhost:5000"
+        "ASPNETCORE_URLS": "http://localhost:5000",
+        "CONNECTIONSTRINGS__DB_BESTBLOGS": "server=localhost;port=3306;database=db_bestblogs;user=root;password=rootpw;Persist Security Info=False;CharSet=utf8mb4;Allow User Variables=True",
+        "USE_IN_MEMORY_DB": "true"
       }
     }
   }

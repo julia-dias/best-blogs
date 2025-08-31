@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
@@ -9,8 +9,10 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="Dapper" Version="2.1.66" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="6.0.10" />
       <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.10" />
+      <PackageReference Include="MySql.Data" Version="8.0.31" />
     </ItemGroup>
 
 </Project>

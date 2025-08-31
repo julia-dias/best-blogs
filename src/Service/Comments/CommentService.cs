@@ -20,54 +20,54 @@ namespace Service.Comments
             _postValidator = postValidator;
         }
 
-        public Comment Create(Comment comment)
+        public async Task<Comment> CreateAsync(Comment comment)
         {
-            _postValidator.ValidatePostExists(comment.PostId);
+            await _postValidator.ValidatePostExistsAsync(comment.PostId);
 
             comment.CreationDate = DateTime.UtcNow;
 
-            return _commentRepository.Create(comment);
+            return await _commentRepository.CreateAsync(comment);
         }
 
-        public bool Delete(Guid id)
+        public async Task<bool> DeleteAsync(Guid id)
         {
-            return _commentRepository.Delete(id);
+            return await _commentRepository.DeleteAsync(id);
         }
 
-        public bool DeleteByPostId(Guid postId)
+        public async Task<bool> DeleteByPostIdAsync(Guid postId)
         {
-            return _commentRepository.DeleteByPostId(postId);
+            return await _commentRepository.DeleteByPostIdAsync(postId);
         }
 
-        public Comment Get(Guid id)
+        public async Task<Comment> GetAsync(Guid id)
         {
-            return _commentRepository.Get(id);
+            return await _commentRepository.GetAsync(id);
         }
 
-        public IEnumerable<Comment> GetAll()
+        public async Task<IEnumerable<Comment>> GetAllAsync()
         {
-            return _commentRepository.GetAll();
+            return await _commentRepository.GetAllAsync();
         }
 
-        public IEnumerable<Comment> GetByPostId(Guid postId)
+        public async Task<IEnumerable<Comment>> GetByPostIdAsync(Guid postId)
         {
-            return _commentRepository.GetByPostId(postId);
+            return await _commentRepository.GetByPostIdAsync(postId);
         }
 
-        public Comment Update(Comment comment)
+        public async Task<Comment> UpdateAsync(Comment comment)
         {
-            var entity = ValidatePostIdInComment(comment.PostId, comment.Id);
+            var entity = await ValidatePostIdInCommentAsync(comment.PostId, comment.Id);
 
             entity.Content = comment.Content;
             entity.Author = comment.Author;
             entity.UpdateDate = DateTime.UtcNow;
 
-            return _commentRepository.Update(entity);
+            return await _commentRepository.UpdateAsync(entity);
         }
 
-        private Comment ValidatePostIdInComment(Guid postId, Guid commentId)
+        private async Task<Comment> ValidatePostIdInCommentAsync(Guid postId, Guid commentId)
         {
-            var comment = _commentRepository.GetByPostIdAndCommentId(postId, commentId);
+            var comment = await _commentRepository.GetByPostIdAndCommentIdAsync(postId, commentId);
 
             if (comment is null)
             {

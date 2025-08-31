@@ -27,100 +27,100 @@ namespace Service.Tests.Posts
         }
 
         [Fact]
-        public void Create_ShouldSetCreationDate_AndCallRepository()
+        public async Task Create_ShouldSetCreationDate_AndCallRepository()
         {
             // Arrange
             var post = new Post { Title = "Test" };
             var created = new Post { Id = Guid.NewGuid(), Title = "Test" };
 
             _postRepositoryMock
-                .Setup(r => r.Create(It.IsAny<Post>()))
-                .Returns(created);
+                .Setup(r => r.CreateAsync(It.IsAny<Post>()))
+                .ReturnsAsync(created);
 
             // Act
-            var result = _service.Create(post);
+            var result = await _service.CreateAsync(post);
 
             // Assert
-            _postRepositoryMock.Verify(r => r.Create(It.Is<Post>(p =>
+            _postRepositoryMock.Verify(r => r.CreateAsync(It.Is<Post>(p =>
                 p.CreationDate != default)), Times.Once);
 
             Assert.Equal(created.Id, result.Id);
         }
 
         [Fact]
-        public void Delete_ShouldDeleteComments_ThenDeletePost()
+        public async Task Delete_ShouldDeleteComments_ThenDeletePost()
         {
             // Arrange
             var id = Guid.NewGuid();
             _commentServiceMock
-                .Setup(c => c.DeleteByPostId(id))
-                .Returns(true);
+                .Setup(c => c.DeleteByPostIdAsync(id))
+                .ReturnsAsync(true);
             _postRepositoryMock
-                .Setup(r => r.Delete(id))
-                .Returns(true);
+                .Setup(r => r.DeleteAsync(id))
+                .ReturnsAsync(true);
 
             // Act
-            var result = _service.Delete(id);
+            var result = await _service.DeleteAsync(id);
 
             // Assert
             Assert.True(result);
-            _commentServiceMock.Verify(c => c.DeleteByPostId(id), Times.Once);
-            _postRepositoryMock.Verify(r => r.Delete(id), Times.Once);
+            _commentServiceMock.Verify(c => c.DeleteByPostIdAsync(id), Times.Once);
+            _postRepositoryMock.Verify(r => r.DeleteAsync(id), Times.Once);
         }
 
         [Fact]
-        public void Delete_ShouldStillDeletePost_WhenNoCommentsDeleted()
+        public async Task Delete_ShouldStillDeletePost_WhenNoCommentsDeleted()
         {
             // Arrange
             var id = Guid.NewGuid();
             _commentServiceMock
-                .Setup(c => c.DeleteByPostId(id))
-                .Returns(false);
+                .Setup(c => c.DeleteByPostIdAsync(id))
+                .ReturnsAsync(false);
             _postRepositoryMock
-                .Setup(r => r.Delete(id))
-                .Returns(true);
+                .Setup(r => r.DeleteAsync(id))
+                .ReturnsAsync(true);
 
             // Act
-            var result = _service.Delete(id);
+            var result = await _service.DeleteAsync(id);
 
             // Assert
             Assert.True(result);
         }
 
         [Fact]
-        public void Get_ShouldReturnPost_FromRepository()
+        public async Task Get_ShouldReturnPost_FromRepository()
         {
             // Arrange
             var post = new Post { Id = Guid.NewGuid(), Title = "Test" };
             _postRepositoryMock
-                .Setup(r => r.Get(post.Id))
-                .Returns(post);
+                .Setup(r => r.GetAsync(post.Id))
+                .ReturnsAsync(post);
 
             // Act
-            var result = _service.Get(post.Id);
+            var result = await _service.GetAsync(post.Id);
 
             // Assert
             Assert.Equal(post, result);
         }
 
         [Fact]
-        public void GetAll_ShouldReturnAllPosts_FromRepository()
+        public async Task GetAll_ShouldReturnAllPosts_FromRepository()
         {
             // Arrange
             var posts = new List<Post> { new Post { Id = Guid.NewGuid() } };
             _postRepositoryMock
-                .Setup(r => r.GetAll())
-                .Returns(posts);
+                .Setup(r => r.GetAllAsync())
+                .ReturnsAsync(posts);
 
             // Act
-            var result = _service.GetAll();
+            var result = await _service.GetAllAsync();
 
             // Assert
             Assert.Equal(posts, result);
         }
 
         [Fact]
-        public void Update_ShouldUpdatePost_WhenExists()
+        public async Task Update_ShouldUpdatePost_WhenExists()
         {
             // Arrange
             var id = Guid.NewGuid();
@@ -128,14 +128,14 @@ namespace Service.Tests.Posts
             var existing = new Post { Id = id, Title = "Old", Content = "Old" };
 
             _postRepositoryMock
-                .Setup(r => r.Get(id))
-                .Returns(existing);
+                .Setup(r => r.GetAsync(id))
+                .ReturnsAsync(existing);
             _postRepositoryMock
-                .Setup(r => r.Update(It.IsAny<Post>()))
-                .Returns((Post p) => p);
+                .Setup(r => r.UpdateAsync(It.IsAny<Post>()))
+                .ReturnsAsync((Post p) => p);
 
             // Act
-            var result = _service.Update(post);
+            var result = await _service.UpdateAsync(post);
 
             // Assert
             Assert.Equal(post.Title, result.Title);
@@ -144,16 +144,16 @@ namespace Service.Tests.Posts
         }
 
         [Fact]
-        public void Update_ShouldThrow_WhenPostDoesNotExist()
+        public async Task Update_ShouldThrow_WhenPostDoesNotExist()
         {
             // Arrange
             var post = new Post { Id = Guid.NewGuid(), Title = "X" };
             _postRepositoryMock
-                .Setup(r => r.Get(post.Id))
-                .Returns((Post)null);
+                .Setup(r => r.GetAsync(post.Id))
+                .ReturnsAsync((Post)null);
 
             // Act & Assert
-            Assert.Throws<EntityNotFoundException>(() => _service.Update(post));
+            await Assert.ThrowsAsync<EntityNotFoundException>(() => _service.UpdateAsync(post));
         }
     }
 }

@@ -4,18 +4,18 @@ namespace Service.Comments
 {
     public interface ICommentService
     {
-        IEnumerable<Comment> GetAll();
+        Task<IEnumerable<Comment>> GetAllAsync();
 
-        Comment Get(Guid id);
+        Task<Comment> GetAsync(Guid id);
 
-        Comment Create(Comment comment);
+        Task<Comment> CreateAsync(Comment comment);
 
-        Comment Update(Comment comment);
+        Task<Comment> UpdateAsync(Comment comment);
 
-        bool Delete(Guid id);
+        Task<bool> DeleteAsync(Guid id);
 
-        bool DeleteByPostId(Guid postId);
+        Task<bool> DeleteByPostIdAsync(Guid postId);
 
-        IEnumerable<Comment> GetByPostId(Guid postId);
+        Task<IEnumerable<Comment>> GetByPostIdAsync(Guid postId);
     }
 }

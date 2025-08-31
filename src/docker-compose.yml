@@ -18,6 +18,15 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: "http://+:8080"
+      CONNECTIONSTRINGS__DB_BESTBLOGS: >-
+        server=bestblogs-mysql;
+        database=db_bestblogs;
+        user=root;
+        password=rootpw;
+        Persist Security Info=False;
+        CharSet=utf8;
+        Allow User Variables=True
+      USE_IN_MEMORY_DB: "false"
     depends_on:
       - bestblogs-migrations
       

@@ -1,9 +1,11 @@
+using Microsoft.EntityFrameworkCore;
 using Model.Posts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
-namespace Repository.Repositories
+namespace Repository.Repositories.InMemory
 {
     public class PostRepository : IPostRepository
     {
@@ -14,40 +16,40 @@ namespace Repository.Repositories
             _context = context;
         }
 
-        public IEnumerable<Post> GetAll()
+        public async Task<IEnumerable<Post>> GetAllAsync()
         {
-            return _context.Posts.ToList();
+            return await _context.Posts.ToListAsync();
         }
 
-        public Post Get(Guid id)
+        public async Task<Post> GetAsync(Guid id)
         {
-            return _context.Posts.Find(id);
+            return await _context.Posts.FindAsync(id);
         }
 
-        public Post Create(Post post)
+        public async Task<Post> CreateAsync(Post post)
         {
             _context.Posts.Add(post);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return post;
         }
 
-        public Post Update(Post post)
+        public async Task<Post> UpdateAsync(Post post)
         {
             _context.Posts.Update(post);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return post;
         }
 
-        public bool Delete(Guid id)
+        public async Task<bool> DeleteAsync(Guid id)
         {
-            var post = _context.Posts.Find(id);
+            var post = await _context.Posts.FindAsync(id);
             if (post == null)
             {
                 return false;
             }
 
             _context.Posts.Remove(post);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return true;
         }
     }
