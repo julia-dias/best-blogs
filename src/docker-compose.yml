@@ -8,7 +8,7 @@ services:
     container_name: bestblogs-webapi
     build:
       context: .
-      dockerfile: Api/Dockerfile
+      dockerfile: Api/DockerFile
       args:
         BUILD_CONFIGURATION: Release
     ports:
@@ -18,6 +18,42 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: "http://+:8080"
+    depends_on:
+      - bestblogs-migrations
+      
+  bestblogs-mysql:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    networks:
+      - net
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpw
+    volumes:
+    # files available in the sql folder will be run on mysql init -> db dump.sql for local
+      - ./sql:/docker-entrypoint-initdb.d
+      
+  bestblogs-migrations:
+    image: db-migrations:latest
+    build:
+      context: .
+      dockerfile: Migrations/DockerFile
+    restart: on-failure
+    environment:
+      ASPNETCORE_ENVIRONMENT: Local
+      CONNECTIONSTRINGS__DB_BESTBLOGS: >-
+        server=bestblogs-mysql;
+        database=db_bestblogs;
+        user=root;
+        password=rootpw;
+        Persist Security Info=False;
+        CharSet=utf8;
+        Allow User Variables=True
+    depends_on:
+      - bestblogs-mysql
+    command: 'dotnet Migrations.dll'
+    networks:
+      - net
 networks:
   net:
 

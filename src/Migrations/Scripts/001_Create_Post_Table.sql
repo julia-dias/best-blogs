@@ -1,0 +1,7 @@
+CREATE TABLE db_bestblogs.Post (
+    Id CHAR(36) NOT NULL PRIMARY KEY,
+    Title VARCHAR(255) NOT NULL,
+    Content TEXT NOT NULL,
+    CreationDate DATETIME NOT NULL,
+    UpdateDate DATETIME DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
