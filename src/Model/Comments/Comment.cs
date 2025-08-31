@@ -9,5 +9,6 @@ namespace Model.Comments
         public string Content { get; set; }
         public string Author { get; set; }
         public DateTime CreationDate { get; set; }
+        public DateTime? UpdateDate { get; set; }
     }
 }

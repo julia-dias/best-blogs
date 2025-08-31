@@ -1,4 +1,5 @@
 using Api.Extensions;
+using Api.Middlewares;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -40,6 +41,7 @@ namespace Api
 
             app.UseRouting();
 
+            app.UseMiddleware<ExceptionMiddleware>();
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }
     }

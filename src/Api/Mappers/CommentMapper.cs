@@ -17,6 +17,7 @@ namespace Api.Mappers
                 Content = domain.Content,
                 Author = domain.Author,
                 CreationDate = domain.CreationDate,
+                UpdateDate = domain.UpdateDate,
             };
         }
 
@@ -26,8 +27,7 @@ namespace Api.Mappers
             {
                 PostId = request.PostId,
                 Content = request.Content,
-                Author = request.Author,
-                CreationDate = DateTime.UtcNow,
+                Author = request.Author
             };
         }
 
@@ -38,8 +38,7 @@ namespace Api.Mappers
                 Id = id,
                 PostId = request.PostId,
                 Content = request.Content,
-                Author = request.Author,
-                CreationDate = DateTime.UtcNow,
+                Author = request.Author
             };
         }
     }

@@ -1,4 +1,4 @@
-using Api.Controllers;
+using Api.Controllers.v1;
 using Api.Dtos.Comments;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;

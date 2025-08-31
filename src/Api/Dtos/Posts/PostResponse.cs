@@ -11,5 +11,7 @@ namespace Api.Dtos.Posts
         public string Content { get; init; }
 
         public DateTime CreationDate { get; init; }
+
+        public DateTime? UpdateDate { get; init; }
     }
 }

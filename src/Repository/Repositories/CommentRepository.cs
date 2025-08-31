@@ -57,5 +57,11 @@ namespace Repository.Repositories
             return _context.Comments
                 .Where(c => c.PostId == postId);
         }
+
+        public Comment GetByPostIdAndCommentId(Guid postId, Guid commentId)
+        {
+            return _context.Comments
+                .FirstOrDefault(c => c.Id == commentId && c.PostId == postId);
+        }
     }
 }

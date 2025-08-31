@@ -2,16 +2,15 @@ using Api.Dtos.Comments;
 using Api.Mappers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Model.Comments;
 using Service.Comments;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Api.Controllers
+namespace Api.Controllers.v1
 {
     [ApiController]
-    [Route("comments")]
+    [Route("api/v1/comments")]
     public class CommentController : ControllerBase
     {
         private readonly ILogger<CommentController> _logger;

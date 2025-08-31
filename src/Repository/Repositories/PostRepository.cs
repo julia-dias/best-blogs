@@ -1,4 +1,3 @@
-using Model.Comments;
 using Model.Posts;
 using System;
 using System.Collections.Generic;

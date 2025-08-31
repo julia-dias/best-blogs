@@ -1,4 +1,5 @@
 ﻿using Model.Comments;
+using Service.Exceptions;
 using Service.Posts;
 using System.Xml.Linq;
 
@@ -9,7 +10,8 @@ namespace Service.Comments
         private readonly ICommentRepository _commentRepository;
         private readonly IPostService _postService;
 
-        private const string PostNotFoundMessage = "PostId not found.";
+        private const string PostNotFoundMessage = "Post with Id not found";
+        private const string CommentNotFoundInPostMessage = "Comment not found in Post";
 
         public CommentService(
             ICommentRepository commentRepository,
@@ -22,6 +24,8 @@ namespace Service.Comments
         public Comment Create(Comment comment)
         {
             ValidatePostId(comment.PostId);
+
+            comment.CreationDate = DateTime.UtcNow;
 
             return _commentRepository.Create(comment);
         }
@@ -48,17 +52,33 @@ namespace Service.Comments
 
         public Comment Update(Comment comment)
         {
-            ValidatePostId(comment.PostId);
+            var entity = ValidatePostIdInComment(comment.PostId, comment.Id);
 
-            return _commentRepository.Update(comment);
+            entity.Content = comment.Content;
+            entity.Author = comment.Author;
+            entity.UpdateDate = DateTime.UtcNow;
+
+            return _commentRepository.Update(entity);
         }
 
         private void ValidatePostId(Guid postId)
         {
             if (_postService.Get(postId) is null)
             {
-                throw new InvalidOperationException(PostNotFoundMessage);
+                throw new EntityNotFoundException($"{PostNotFoundMessage}: {postId}");
             }
+        }
+
+        private Comment ValidatePostIdInComment(Guid postId, Guid commentId)
+        {
+            var comment = _commentRepository.GetByPostIdAndCommentId(postId, commentId);
+
+            if (comment is null)
+            {
+                throw new EntityNotFoundException($"{CommentNotFoundInPostMessage}: {postId}");
+            }
+
+            return comment;
         }
     }
 }

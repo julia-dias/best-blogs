@@ -28,6 +28,7 @@ namespace Api.Tests.Mappers
             Assert.Equal(domain.Title, response.Title);
             Assert.Equal(domain.Content, response.Content);
             Assert.Equal(domain.CreationDate, response.CreationDate);
+            Assert.Equal(domain.UpdateDate, response.UpdateDate);
         }
 
         [Fact]
@@ -46,8 +47,6 @@ namespace Api.Tests.Mappers
             // Assert
             Assert.Equal(request.Title, domain.Title);
             Assert.Equal(request.Content, domain.Content);
-            Assert.True((DateTime.UtcNow - domain.CreationDate).TotalSeconds < 1,
-                        "CreationDate should be set to now");
         }
     }
 }

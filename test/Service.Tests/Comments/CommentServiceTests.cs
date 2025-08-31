@@ -2,6 +2,7 @@ using Model.Comments;
 using Model.Posts;
 using Moq;
 using Service.Comments;
+using Service.Exceptions;
 using Service.Posts;
 
 namespace Service.Tests.Comments
@@ -11,6 +12,9 @@ namespace Service.Tests.Comments
         private readonly Mock<ICommentRepository> _mockCommentRepository;
         private readonly Mock<IPostService> _mockPostService;
         private readonly CommentService _commentService;
+
+        private const string PostNotFoundMessage = "Post with Id not found";
+        private const string CommentNotFoundInPostMessage = "Comment not found in Post";
 
         public CommentServiceTests()
         {
@@ -60,8 +64,8 @@ namespace Service.Tests.Comments
                 .Returns((Post)null);
 
             // Act & Assert
-            var ex = Assert.Throws<InvalidOperationException>(() => _commentService.Create(comment));
-            Assert.Equal("PostId not found.", ex.Message);
+            var ex = Assert.Throws<EntityNotFoundException>(() => _commentService.Create(comment));
+            Assert.Equal($"{PostNotFoundMessage}: {comment.PostId}", ex.Message);
             _mockCommentRepository.Verify(r => r.Create(It.IsAny<Comment>()), Times.Never);
         }
 
@@ -74,19 +78,27 @@ namespace Service.Tests.Comments
                 Id = Guid.NewGuid(),
                 PostId = Guid.NewGuid(),
                 Content = "Test",
-                Author = "Author"
+                Author = "Author",
+                CreationDate = DateTime.UtcNow,
             };
-            _mockPostService
-                .Setup(p => p.Get(comment.PostId))
-                .Returns(new Post { Id = comment.PostId });
             _mockCommentRepository
-                .Setup(r => r.Update(comment)).Returns(comment);
+                .Setup(p => p.GetByPostIdAndCommentId(comment.PostId, comment.Id))
+                .Returns(comment);
+
+            _mockCommentRepository
+                .Setup(r => r.Update(comment))
+                .Returns(comment);
 
             // Act
             var result = _commentService.Update(comment);
 
             // Assert
-            Assert.Equal(comment, result);
+            Assert.Equal(comment.Id, result.Id);
+            Assert.Equal(comment.PostId, result.PostId);
+            Assert.Equal(comment.Content, result.Content);
+            Assert.Equal(comment.Author, result.Author);
+            Assert.Equal(comment.CreationDate, result.CreationDate);
+            Assert.NotNull(result.UpdateDate);
             _mockCommentRepository.Verify(r => r.Update(comment), Times.Once);
         }
 
@@ -100,12 +112,14 @@ namespace Service.Tests.Comments
                 PostId = Guid.NewGuid(),
                 Content = "Test",
                 Author = "Author" };
-            _mockPostService
-                .Setup(p => p.Get(comment.PostId)).Returns((Post)null);
+
+            _mockCommentRepository
+                .Setup(p => p.GetByPostIdAndCommentId(comment.PostId, comment.Id))
+                .Returns((Comment)null);
 
             // Act & Assert
-            var ex = Assert.Throws<InvalidOperationException>(() => _commentService.Update(comment));
-            Assert.Equal("PostId not found.", ex.Message);
+            var ex = Assert.Throws<EntityNotFoundException>(() => _commentService.Update(comment));
+            Assert.Equal($"{CommentNotFoundInPostMessage}: {comment.PostId}", ex.Message);
             _mockCommentRepository.Verify(r => r.Update(It.IsAny<Comment>()), Times.Never);
         }
     }

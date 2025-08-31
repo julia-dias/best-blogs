@@ -6,15 +6,13 @@ using Api.Dtos.Posts;
 using Api.Mappers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Model.Comments;
-using Model.Posts;
 using Service.Comments;
 using Service.Posts;
 
-namespace Api.Controllers
+namespace Api.Controllers.v1
 {
     [ApiController]
-    [Route("posts")]
+    [Route("api/v1/posts")]
     public class PostController : ControllerBase
     {
         private readonly ILogger<PostController> _logger;

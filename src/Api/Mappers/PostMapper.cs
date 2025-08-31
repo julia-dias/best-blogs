@@ -14,6 +14,7 @@ namespace Api.Mappers
                 Title = domain.Title,
                 Content = domain.Content,
                 CreationDate = domain.CreationDate,
+                UpdateDate = domain.UpdateDate,
             };
         }
 
@@ -22,8 +23,7 @@ namespace Api.Mappers
             return new Post
             {
                 Title = request.Title,
-                Content = request.Content,
-                CreationDate = DateTime.UtcNow,
+                Content = request.Content
             };
         }
 
@@ -33,8 +33,7 @@ namespace Api.Mappers
             {
                 Id = id,
                 Title = request.Title,
-                Content = request.Content,
-                CreationDate = DateTime.UtcNow,
+                Content = request.Content
             };
         }
     }

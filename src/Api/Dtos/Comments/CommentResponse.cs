@@ -13,5 +13,7 @@ namespace Api.Dtos.Comments
         public string Author { get; init; }
 
         public DateTime CreationDate { get; init; }
+
+        public DateTime? UpdateDate { get; init; }
     }
 }
