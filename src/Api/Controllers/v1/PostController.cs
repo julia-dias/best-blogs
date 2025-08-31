@@ -97,9 +97,9 @@ namespace Api.Controllers.v1
         }
 
         [HttpGet("{id:guid}/comments")]
-        public ActionResult<IEnumerable<CommentResponse>> GetComments([FromRoute] Guid id)
+        public ActionResult<IEnumerable<CommentResponse>> GetComments([FromRoute] Guid postId)
         {
-            var comments = _commentService.GetByPostId(id);
+            var comments = _commentService.GetByPostId(postId);
 
             var commentsResponse = comments
                 .Select(x => x.ToResponse());

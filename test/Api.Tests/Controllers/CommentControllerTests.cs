@@ -1,5 +1,6 @@
 using Api.Controllers.v1;
 using Api.Dtos.Comments;
+using Api.Mappers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Model.Comments;
@@ -27,7 +28,7 @@ namespace Api.Tests.Controllers
         }
 
         [Fact]
-        public void GetAll_Returns_AllExisting()
+        public void GetAll_ReturnsOk_AllExisting()
         {
             // Arrange
             var expected = new List<Comment>
@@ -55,7 +56,7 @@ namespace Api.Tests.Controllers
         }
 
         [Fact]
-        public void GetById_Returns_Entity()
+        public void GetById_ReturnsOk_Entity()
         {
             // Arrange
             var expectedId = Guid.NewGuid();
@@ -83,32 +84,37 @@ namespace Api.Tests.Controllers
             Assert.Equal(result, expectedCommentResponse);
         }
 
-        //[Fact]
-        //public void GetById_Returns_NotFound()
-        //{
-
-        //}
-
         [Fact]
-        public void Create_Returns_Entity()
+        public void GetById_ReturnsNotFound_WhenCommentDoesNotExist()
         {
             // Arrange
+            var id = Guid.NewGuid();
+            _mockCommentService
+                .Setup(s => s.Get(id))
+                .Returns((Comment)null);
+
+            // Act
+            var result = _commentController.Get(id);
+
+            // Assert
+            Assert.IsType<NotFoundResult>(result.Result);
+        }
+
+        [Fact]
+        public void Create_Returns201_Entity()
+        {
+            // Arrange
+            var now = DateTime.UtcNow;
             var expectedRequest = new CommentRequest
             {
                 PostId = Guid.NewGuid(),
                 Content = "some content",
                 Author = "any author"
             };
-
-            var expectedDomain = new Comment
-            {
-                Id = Guid.NewGuid(),
-                PostId = expectedRequest.PostId,
-                Content = expectedRequest.Content,
-                Author = expectedRequest.Author,
-                CreationDate = DateTime.UtcNow,
-            };
-
+            var expectedDomain = expectedRequest.ToDomain();
+            expectedDomain.Id = Guid.NewGuid();
+            expectedDomain.CreationDate = now;
+            
             _mockCommentService
                 .Setup(s => s.Create(It.IsAny<Comment>()))
                 .Returns(expectedDomain);
@@ -120,10 +126,71 @@ namespace Api.Tests.Controllers
             var createdAtAction = Assert.IsType<CreatedAtActionResult>(actionResult.Result);
             var result = Assert.IsType<CommentResponse>(createdAtAction.Value);
 
-            Assert.NotEqual(Guid.Empty, result.Id);
-            Assert.Equal(expectedRequest.PostId, result.PostId);
-            Assert.Equal(expectedRequest.Content, result.Content);
-            Assert.Equal(expectedRequest.Author, result.Author);
+            Assert.Equal(expectedDomain.Id, result.Id);
+            Assert.Equal(now, result.CreationDate);
+        }
+
+        [Fact]
+        public void Edit_ReturnsOk_WhenCommentUpdated()
+        {
+            // Arrange
+            var id = Guid.NewGuid();
+            var request = new CommentRequest { Content = "Updated", Author = "Author" };
+            var updatedComment = request.ToDomain(id);
+            _mockCommentService
+                .Setup(s => s.Update(It.IsAny<Comment>()))
+                .Returns(updatedComment);
+
+            // Act
+            var result = _commentController.Put(id, request);
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result.Result);
+            var response = Assert.IsType<CommentResponse>(okResult.Value);
+            Assert.Equal(updatedComment.Id, response.Id);
+        }
+
+        [Fact]
+        public void Edit_ReturnsNotFound_WhenUpdateFails()
+        {
+            // Arrange
+            var id = Guid.NewGuid();
+            var request = new CommentRequest { Content = "Updated", Author = "Author" };
+            _mockCommentService.Setup(s => s.Update(It.IsAny<Model.Comments.Comment>())).Returns((Model.Comments.Comment)null);
+
+            // Act
+            var result = _commentController.Put(id, request);
+
+            // Assert
+            Assert.IsType<NotFoundResult>(result.Result);
+        }
+
+        [Fact]
+        public void Delete_ReturnsNoContent_WhenDeleted()
+        {
+            // Arrange
+            var id = Guid.NewGuid();
+            _mockCommentService.Setup(s => s.Delete(id)).Returns(true);
+
+            // Act
+            var result = _commentController.Delete(id);
+
+            // Assert
+            Assert.IsType<NoContentResult>(result);
+        }
+
+        [Fact]
+        public void Delete_ReturnsNotFound_WhenDeleteFails()
+        {
+            // Arrange
+            var id = Guid.NewGuid();
+            _mockCommentService.Setup(s => s.Delete(id)).Returns(false);
+
+            // Act
+            var result = _commentController.Delete(id);
+
+            // Assert
+            Assert.IsType<NotFoundResult>(result);
         }
     }
 }
