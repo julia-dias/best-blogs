@@ -1,3 +1,32 @@
+## How to execute BestBlogs API
+
+Run the BestBlogs API either directly from Visual Studio or using Docker Compose.
+
+### Run using Docker Compose
+- Navigate to the directory containing `docker-compose.yml` (under the `/src` folder).
+- Build and start the containers:
+```bash
+sudo docker-compose up -d --build
+```
+
+- To stop the containers:
+```bash
+sudo docker-compose down
+```
+
+## Change Database: InMemory or MySQL
+
+You can control which database the API uses via the **environmental variable** `USE_IN_MEMORY_DB`:
+
+- `true` → API uses an **InMemory EF Core** database.
+- `false` → API uses **MySQL** (Docker Compose will automatically start a MySQL container for you).
+
+## Future Improvements
+
+- Upgrade to **.NET 9** (currently not upgraded due to DevSkiller compatibility).  
+- Add more layers of testing, such as **Acceptance Tests** using the mocked MySQL container and **BDD** for defining acceptance scenarios.  
+- Implement a **CD pipeline** (the CI pipeline is already in place: [BestBlogs CI](https://github.com/julia-dias/best-blogs)).
+
 ## Introduction
 You were hired as a consultant for BestBlogs<sup>TM</sup> company. The company 
 needs your help with finishing the implementation of a REST api for its newest blog product.
