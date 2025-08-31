@@ -24,23 +24,12 @@ namespace Api
         public void ConfigureServices(IServiceCollection services)
         {
             var useInMemoryDb = Configuration.GetValue<bool>("USE_IN_MEMORY_DB");
-            if (useInMemoryDb)
-            {
-                services.AddDbContext<BlogContext>(x => x.UseInMemoryDatabase("InMemoryDb"));
-            }
-            else
-            {
-                var connectionString = Configuration.GetConnectionString("DB_BESTBLOGS");
-                services.AddScoped<IDatabaseConnection>((provider) =>
-                {
-                    return new DatabaseConnection(connectionString);
-                });
-            }
-            //services.RegisterDatabase(Configuration);
+            
+            services.RegisterDatabase(Configuration, useInMemoryDb);
 
             services.AddControllers();
 
-            services.RegisterRepositories();
+            services.RegisterRepositories(useInMemoryDb);
             services.RegisterServices();
 
             services.AddSwagger();
